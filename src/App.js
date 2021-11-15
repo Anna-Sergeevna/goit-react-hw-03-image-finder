@@ -15,6 +15,7 @@ import './App.css';
 class App extends Component {
   state = {
     query: '',
+    page: 1,
   };
 
   onSubmit = query => {
@@ -22,10 +23,11 @@ class App extends Component {
   };
 
   render() {
+    const { query } = this.state;
     return (
       <Container title="Поиск изображений">
         <Searchbar onSubmit={this.onSubmit} />
-        <ImageGallery query={this.state.query} />
+        <ImageGallery query={query} />
         <ToastContainer autoClose={3000} />
       </Container>
     );
