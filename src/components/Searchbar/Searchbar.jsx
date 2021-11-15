@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
-import 'index.css';
 
 class Searchbar extends Component {
   static propTypes = {
@@ -9,38 +8,38 @@ class Searchbar extends Component {
   };
 
   state = {
-    image: '',
+    query: '',
   };
 
   handleChange = e => {
-    this.setState({ image: e.currentTarget.value.toLowerCase() });
+    this.setState({ query: e.currentTarget.value.toLowerCase() });
   };
 
   handleSubmit = e => {
-    const { image } = this.state;
+    const { query } = this.state;
 
     e.preventDefault();
 
-    if (image.trim() === '') {
+    if (query.trim() === '') {
       toast.error('Enter the queryn');
       return;
     }
 
-    this.props.onSubmit(image);
+    this.props.onSubmit(query);
     this.reset();
   };
 
   reset = () => {
-    this.setState({ image: '' });
+    this.setState({ query: '' });
   };
 
   render() {
-    const { image } = this.state;
+    const { query } = this.state;
 
     return (
       <header className="searchbar">
         <form className="searchForm" onSubmit={this.handleSubmit}>
-          <button type="submit" disabled={!image} className="searchForm-button">
+          <button type="submit" disabled={!query} className="searchForm-button">
             <span className="searchForm-button-label">Search</span>
           </button>
 
@@ -51,7 +50,7 @@ class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
-            value={image}
+            value={query}
             onChange={this.handleChange}
           />
         </form>
