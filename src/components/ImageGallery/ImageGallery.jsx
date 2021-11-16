@@ -1,16 +1,31 @@
 import { Component } from 'react';
 // import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
+import ImagesErrorView from './ImagesErrorView';
+import ImagesDataView from './ImagesDataView';
+import ImagesPendingView from './ImagesPendingView';
+import imagesAPI from '../../services/pixabay-api';
+import Modal from '../Modal/Modal';
+// import Modal from 'components/Modal';
 
 // import PropTypes from 'prop-types';
 
+const Status = {
+  IDLE: 'idle',
+  PENDING: 'pending',
+  RESOLVED: 'resolved',
+  REJECTED: 'rejected',
+};
+
 class ImageGallery extends Component {
   // static propTypes = {
-  //   onSubmit: PropTypes.func.isRequired,
   // };
 
   state = {
     images: [],
-    loading: false,
+    error: null,
+    status: Status.IDLE,
+    showModal: false,
+    largeImageURL: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -18,35 +33,52 @@ class ImageGallery extends Component {
     const nextQuery = this.props.query;
 
     if (prevQuery !== nextQuery) {
-      this.setState({ loading: true });
+      this.setState({ status: Status.PENDING });
 
-      setTimeout(() => {
-        fetch(
-          `https://pixabay.com/api/?image_type=photo&orientation=horizontal&per_page=12&q=${nextQuery}&key=23640925-62666e78aedb939489768c224`,
-        )
-          .then(r => r.json())
-          .then(images => this.setState({ images }))
-          .finally(() => this.setState({ loading: false }));
-      }, 2000);
+      imagesAPI
+        .fetchImages(nextQuery)
+        .then(images => {
+          if (images.hits.length === 0) {
+            throw new Error();
+          }
+          this.setState({ images: images.hits, status: Status.RESOLVED });
+        })
+        .catch(error => this.setState({ status: Status.REJECTED }));
     }
   }
 
+  toggleModal = () => {
+    this.setState(state => ({ showModal: !state.showModal }));
+  };
+
   render() {
-    return (
-      <>
-        <ul className="imageGallery">
-          {this.state.loading && <div>Загружаем...</div>}
-          {!this.props.query && <div>Введите запрос</div>}
-          {/* {this.props.images.map(({ id, webformatURL, tags }) => (
-            <ImageGalleryItem
-              key={id}
-              webformatURL={webformatURL}
-              tags={tags}
+    const { images, status, showModal } = this.state;
+
+    if (status === Status.IDLE) {
+      return <div>Please enter your search</div>;
+    }
+
+    if (status === Status.PENDING) {
+      return <ImagesPendingView />;
+    }
+
+    if (status === Status.REJECTED) {
+      return <ImagesErrorView message={'error.message'} />;
+    }
+
+    if (status === Status.RESOLVED) {
+      return (
+        <>
+          {showModal && (
+            <Modal
+              onClick={this.toggleModal}
+              largeImageURL={this.state.largeImageURL}
             />
-          ))} */}
-        </ul>
-      </>
-    );
+          )}
+          <ImagesDataView images={images} onClick={this.toggleModal} />
+        </>
+      );
+    }
   }
 }
 
