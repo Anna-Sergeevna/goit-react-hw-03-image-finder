@@ -1,5 +1,15 @@
 // import PropTypes from 'prop-types';
 
-<button className="button" type="button">
-  Load more
-</button>;
+function Button({ onClick }) {
+  return (
+    <button type="button" className="button" onClick={onClick}>
+      Load more
+    </button>
+  );
+}
+
+// Button.propTypes = {
+//   onClick: PropTypes.func.isRequired,
+// };
+
+export default Button;

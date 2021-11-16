@@ -1,11 +1,10 @@
 import { Component } from 'react';
-// import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import ImagesErrorView from './ImagesErrorView';
 import ImagesDataView from './ImagesDataView';
 import ImagesPendingView from './ImagesPendingView';
+import ImagesIdleView from './ImagesIdleView';
 import imagesAPI from '../../services/pixabay-api';
 import Modal from '../Modal/Modal';
-// import Modal from 'components/Modal';
 
 // import PropTypes from 'prop-types';
 
@@ -22,9 +21,10 @@ class ImageGallery extends Component {
 
   state = {
     images: [],
-    error: null,
+    // error: null,
     status: Status.IDLE,
     showModal: false,
+    page: 1,
     largeImageURL: '',
   };
 
@@ -39,7 +39,7 @@ class ImageGallery extends Component {
         .fetchImages(nextQuery)
         .then(images => {
           if (images.hits.length === 0) {
-            throw new Error();
+            throw Error();
           }
           this.setState({ images: images.hits, status: Status.RESOLVED });
         })
@@ -52,10 +52,10 @@ class ImageGallery extends Component {
   };
 
   render() {
-    const { images, status, showModal } = this.state;
+    const { images, status, largeImageURL, showModal } = this.state;
 
     if (status === Status.IDLE) {
-      return <div>Please enter your search</div>;
+      return <ImagesIdleView />;
     }
 
     if (status === Status.PENDING) {
@@ -63,17 +63,14 @@ class ImageGallery extends Component {
     }
 
     if (status === Status.REJECTED) {
-      return <ImagesErrorView message={'error.message'} />;
+      return <ImagesErrorView message={'Sorry we nothing found for you'} />;
     }
 
     if (status === Status.RESOLVED) {
       return (
         <>
           {showModal && (
-            <Modal
-              onClick={this.toggleModal}
-              largeImageURL={this.state.largeImageURL}
-            />
+            <Modal onClose={this.toggleModal} largeImageURL={largeImageURL} />
           )}
           <ImagesDataView images={images} onClick={this.toggleModal} />
         </>

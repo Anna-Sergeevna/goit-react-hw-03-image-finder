@@ -23,8 +23,10 @@ const ImageGalleryItem = ({
 
 ImageGalleryItem.propTypes = {
   webformatURL: PropTypes.string.isRequired,
+  datascr: PropTypes.string.isRequired,
   tags: PropTypes.string,
   id: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default ImageGalleryItem;
