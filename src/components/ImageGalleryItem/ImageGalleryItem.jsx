@@ -13,7 +13,7 @@ const ImageGalleryItem = ({
       <img
         className="imageGalleryItem-image"
         src={webformatURL}
-        datascr={largeImageURL}
+        datasrc={largeImageURL}
         alt={tags}
         onClick={onClick}
       />
@@ -23,7 +23,7 @@ const ImageGalleryItem = ({
 
 ImageGalleryItem.propTypes = {
   webformatURL: PropTypes.string.isRequired,
-  datascr: PropTypes.string.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
   tags: PropTypes.string,
   id: PropTypes.number.isRequired,
   onClick: PropTypes.func.isRequired,

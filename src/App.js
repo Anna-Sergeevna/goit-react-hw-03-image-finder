@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Container from 'components/Container';
 import Searchbar from 'components/Searchbar';
 import ImageGallery from 'components/ImageGallery';
-// import Button from 'components/Button';
 
 import './App.css';
 

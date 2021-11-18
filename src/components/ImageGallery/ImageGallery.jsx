@@ -4,9 +4,9 @@ import ImagesDataView from './ImagesDataView';
 import ImagesPendingView from './ImagesPendingView';
 import ImagesIdleView from './ImagesIdleView';
 import imagesAPI from '../../services/pixabay-api';
-import Modal from '../Modal/Modal';
-
-// import PropTypes from 'prop-types';
+import Modal from 'components/Modal';
+import Button from 'components/Button';
+import PropTypes from 'prop-types';
 
 const Status = {
   IDLE: 'idle',
@@ -16,16 +16,18 @@ const Status = {
 };
 
 class ImageGallery extends Component {
-  // static propTypes = {
-  // };
+  static propTypes = {
+    query: PropTypes.string.isRequired,
+  };
 
   state = {
     images: [],
-    // error: null,
     status: Status.IDLE,
     showModal: false,
     page: 1,
     largeImageURL: '',
+    alt: '',
+    // error: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -33,26 +35,61 @@ class ImageGallery extends Component {
     const nextQuery = this.props.query;
 
     if (prevQuery !== nextQuery) {
-      this.setState({ status: Status.PENDING });
+      this.setState({ page: 1, status: Status.PENDING });
 
       imagesAPI
-        .fetchImages(nextQuery)
+        .fetchImages(nextQuery, this.state.page)
         .then(images => {
           if (images.hits.length === 0) {
             throw Error();
           }
-          this.setState({ images: images.hits, status: Status.RESOLVED });
+          this.setState(({ page }) => {
+            return {
+              images: images.hits,
+              status: Status.RESOLVED,
+              page: page + 1,
+            };
+          });
         })
         .catch(error => this.setState({ status: Status.REJECTED }));
     }
   }
 
-  toggleModal = () => {
-    this.setState(state => ({ showModal: !state.showModal }));
+  addImages = () => {
+    imagesAPI
+      .fetchImages(this.props.query, this.state.page)
+      .then(photos => {
+        if (photos.hits.length === 0) {
+          throw Error();
+        }
+        this.setState(({ images, page }) => {
+          return {
+            images: [...images, ...photos.hits],
+            status: Status.RESOLVED,
+            page: page + 1,
+          };
+        });
+      })
+      .catch(error => this.setState({ status: Status.REJECTED }));
+  };
+
+  toggleModal = (datasrc, alt) => {
+    this.setState(state => ({
+      showModal: !state.showModal,
+      largeImageURL: datasrc,
+      alt,
+    }));
+  };
+
+  onGalleryCardClick = e => {
+    const url = e.target.getAttribute('datasrc');
+    const alt = e.target.getAttribute('alt');
+    this.toggleModal(url, alt);
+    console.log(url);
   };
 
   render() {
-    const { images, status, largeImageURL, showModal } = this.state;
+    const { images, status, largeImageURL, alt, showModal } = this.state;
 
     if (status === Status.IDLE) {
       return <ImagesIdleView />;
@@ -70,9 +107,14 @@ class ImageGallery extends Component {
       return (
         <>
           {showModal && (
-            <Modal onClose={this.toggleModal} largeImageURL={largeImageURL} />
+            <Modal
+              onClose={this.toggleModal}
+              largeImageURL={largeImageURL}
+              alt={alt}
+            />
           )}
-          <ImagesDataView images={images} onClick={this.toggleModal} />
+          <ImagesDataView images={images} onClick={this.onGalleryCardClick} />
+          <Button onClick={this.addImages} />
         </>
       );
     }
