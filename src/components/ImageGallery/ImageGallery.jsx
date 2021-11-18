@@ -43,13 +43,7 @@ class ImageGallery extends Component {
           if (images.hits.length === 0) {
             throw Error();
           }
-          this.setState(({ page }) => {
-            return {
-              images: images.hits,
-              status: Status.RESOLVED,
-              page: page + 1,
-            };
-          });
+          this.setState({ images: [...images.hits], status: Status.RESOLVED });
         })
         .catch(error => this.setState({ status: Status.REJECTED }));
     }
@@ -59,9 +53,6 @@ class ImageGallery extends Component {
     imagesAPI
       .fetchImages(this.props.query, this.state.page)
       .then(photos => {
-        if (photos.hits.length === 0) {
-          throw Error();
-        }
         this.setState(({ images, page }) => {
           return {
             images: [...images, ...photos.hits],
