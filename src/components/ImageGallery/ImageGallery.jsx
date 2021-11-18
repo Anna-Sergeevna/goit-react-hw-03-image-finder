@@ -35,7 +35,7 @@ class ImageGallery extends Component {
     const nextQuery = this.props.query;
 
     if (prevQuery !== nextQuery) {
-      this.setState({ page: 1, status: Status.PENDING });
+      this.setState({ status: Status.PENDING });
 
       imagesAPI
         .fetchImages(nextQuery, this.state.page)
@@ -43,7 +43,13 @@ class ImageGallery extends Component {
           if (images.hits.length === 0) {
             throw Error();
           }
-          this.setState({ images: [...images.hits], status: Status.RESOLVED });
+          this.setState(({ page }) => {
+            return {
+              images: images.hits,
+              status: Status.RESOLVED,
+              page: page + 1,
+            };
+          });
         })
         .catch(error => this.setState({ status: Status.REJECTED }));
     }
