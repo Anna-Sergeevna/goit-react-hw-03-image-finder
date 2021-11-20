@@ -8,7 +8,7 @@ const URL = {
 
 function fetchImages(query, page) {
   return fetch(
-    `https://pixabay.com/api/?q=${query}&page=${page}&key=${URL.KEY}&image_type=${URL.IMAGE_TYPE}&orientation=${URL.ORIENTATION}&per_page=${URL.PER_PAGE}`,
+    `${URL.BASE_URL}/?q=${query}&page=${page}&key=${URL.KEY}&image_type=${URL.IMAGE_TYPE}&orientation=${URL.ORIENTATION}&per_page=${URL.PER_PAGE}`,
   ).then(r => r.json());
 }
 
